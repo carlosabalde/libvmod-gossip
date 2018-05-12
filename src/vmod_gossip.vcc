@@ -1,0 +1,60 @@
+#
+# Copyright (c) 2018 Carlos Abalde <carlos.abalde@gmail.com>
+#
+# You're free to use and distribute this under terms in the
+# LICENSE file.
+#
+
+$Module gossip 3 GOSSIP VMOD
+$ABI strict
+
+DESCRIPTION
+===========
+
+VMOD useful to dump customizable information about contents currently stored
+in the cache to a JSON file for subsequent analysis in order to consider
+better caching strategies.
+
+$Event event_function
+
+$Function VOID dump(STRING file, BOOL discard=1)
+
+Arguments
+    file: path to the output JSON file.
+
+    discard: if enabled (default) the VMOD will discard the internal state dumped
+    to the output JSON file. This is **strongly recommended** when dumping cache
+    contents while the Varnish instance is handling HTTP traffic. Otherwise
+    the instance will be blocked while writing the JSON file.
+Description
+    When enabled, the VMOD actively listens to object insertion and deletion
+    events. That way the VMOD builds an internal representation of objects
+    currently stored in the cache, but **only** since the last dump operation
+    (assuming the ``discard`` argument is enabled; strongly recommended). In
+    other words, don't expect the whole list of cached objects will be dumped
+    to the JSON file.
+
+    In order to obtain a JSON file useful for a subsequent analysis, you need
+    to populate ``beresp.http.X-Gossip-Info`` with a valid JSON value during
+    ``vcl_backend_response``. For example::
+
+        sub vcl_backend_response {
+            ...
+            set beresp.http.X-Gossip-Info =
+                {"""} +
+                gossip.escape_json_string(bereq.http.Host + bereq.url) +
+                {"""};
+            ...
+        }
+
+$Function VOID discard()
+
+Description
+    Optimal implementation of ``gossip.dump("/dev/null")``.
+
+$Function STRING escape_json_string(STRING value)
+
+Arguments
+    value: a string value.
+Return value
+    Escaped version (as described in RFC 4627) of ``value``.
