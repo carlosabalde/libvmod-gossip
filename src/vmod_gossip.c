@@ -363,27 +363,29 @@ dump_thread(void *obj)
 VCL_VOID
 vmod_dump(VRT_CTX, VCL_STRING file, VCL_BOOL discard)
 {
-    struct dump_thread_args *args;
-    double now = ctx2now(ctx);
+    if (file != NULL && *file) {
+        struct dump_thread_args *args;
+        double now = ctx2now(ctx);
 
-    AZ(pthread_mutex_lock(&mutex));
-    if (discard) {
-        ALLOC_OBJ(args, DUMP_THREAD_ARGS_MAGIC);
-        AN(args);
-        args->now = now;
-        args->file = strdup(file);
-        AN(args->file);
-        args->state = vmod_state;
+        AZ(pthread_mutex_lock(&mutex));
+        if (discard) {
+            ALLOC_OBJ(args, DUMP_THREAD_ARGS_MAGIC);
+            AN(args);
+            args->now = now;
+            args->file = strdup(file);
+            AN(args->file);
+            args->state = vmod_state;
 
-        vmod_state = new_vmod_state(now);
-    } else {
-        dump(ctx, vmod_state, file, now);
-    }
-    AZ(pthread_mutex_unlock(&mutex));
+            vmod_state = new_vmod_state(now);
+        } else {
+            dump(ctx, vmod_state, file, now);
+        }
+        AZ(pthread_mutex_unlock(&mutex));
 
-    if (discard) {
-        pthread_t thread;
-        AZ(pthread_create(&thread, NULL, &dump_thread, args));
+        if (discard) {
+            pthread_t thread;
+            AZ(pthread_create(&thread, NULL, &dump_thread, args));
+        }
     }
 }
 
