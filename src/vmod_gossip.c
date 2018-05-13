@@ -21,7 +21,7 @@
 
 #define LOG(ctx, level, fmt, ...) \
     do { \
-        syslog(level, "[OBJECTS][%s:%d] " fmt, __func__, __LINE__, __VA_ARGS__); \
+        syslog(level, "[GOSSIP][%s:%d] " fmt, __func__, __LINE__, __VA_ARGS__); \
         unsigned slt; \
         if (level <= LOG_ERR) { \
             slt = SLT_VCL_Error; \
@@ -29,16 +29,16 @@
             slt = SLT_VCL_Log; \
         } \
         if (ctx != NULL && (ctx)->vsl != NULL) { \
-            VSLb((ctx)->vsl, slt, "[OBJECTS][%s:%d] " fmt, __func__, __LINE__, __VA_ARGS__); \
+            VSLb((ctx)->vsl, slt, "[GOSSIP][%s:%d] " fmt, __func__, __LINE__, __VA_ARGS__); \
         } else { \
-            VSL(slt, 0, "[OBJECTS][%s:%d] " fmt, __func__, __LINE__, __VA_ARGS__); \
+            VSL(slt, 0, "[GOSSIP][%s:%d] " fmt, __func__, __LINE__, __VA_ARGS__); \
         } \
     } while (0)
 
 #define FAIL(ctx, result, fmt, ...) \
     do { \
-        syslog(LOG_ALERT, "[OBJECTS][%s:%d] " fmt, __func__, __LINE__, ##__VA_ARGS__); \
-        VRT_fail(ctx, "[OBJECTS][%s:%d] " fmt, __func__, __LINE__, ##__VA_ARGS__); \
+        syslog(LOG_ALERT, "[GOSSIP][%s:%d] " fmt, __func__, __LINE__, ##__VA_ARGS__); \
+        VRT_fail(ctx, "[GOSSIP][%s:%d] " fmt, __func__, __LINE__, ##__VA_ARGS__); \
         return result; \
     } while (0)
 
