@@ -76,14 +76,14 @@ static uintptr_t callback_handle;
 
 static const char header[] = "X-Gossip-Info:";
 
-typedef struct state {
+typedef struct vmod_state {
     unsigned magic;
     #define STATE_MAGIC 0x78aaea42
     double tst;
     objects_t objects;
-} state_t;
+} vmod_state_t;
 
-static state_t *state = NULL;
+static vmod_state_t *vmod_state = NULL;
 
 /******************************************************************************
  * UTILITIES.
@@ -151,6 +151,44 @@ ctx2now(VRT_CTX)
     }
 }
 
+static vmod_state_t *
+new_vmod_state(double tst)
+{
+    vmod_state_t *result;
+    ALLOC_OBJ(result, STATE_MAGIC);
+    AN(result);
+
+    result->tst = tst;
+
+    VRB_INIT(&result->objects);
+
+    return result;
+}
+
+static void*
+free_vmod_state_thread(void *obj)
+{
+    vmod_state_t *state;
+    CAST_OBJ_NOTNULL(state, obj, STATE_MAGIC);
+
+    state->tst = 0.0;
+    discard_objects(&state->objects);
+    FREE_OBJ(state);
+
+    return NULL;
+}
+
+static void
+free_vmod_state(vmod_state_t *state, unsigned async)
+{
+    if (async) {
+        pthread_t thread;
+        AZ(pthread_create(&thread, NULL, &free_vmod_state_thread, state));
+    } else {
+        free_vmod_state_thread(state);
+    }
+}
+
 /******************************************************************************
  * CALLBACKS.
  *****************************************************************************/
@@ -173,7 +211,7 @@ insert_callback(struct worker *wrk, struct objcore *oc)
     object_t *object = new_object(oc, info);
 
     AZ(pthread_mutex_lock(&mutex));
-    AZ(VRB_INSERT(objects, &state->objects, object));
+    AZ(VRB_INSERT(objects, &vmod_state->objects, object));
     AZ(pthread_mutex_unlock(&mutex));
 }
 
@@ -183,10 +221,10 @@ remove_callback(struct objcore *oc)
     CHECK_OBJ_NOTNULL(oc, OBJCORE_MAGIC);
 
     AZ(pthread_mutex_lock(&mutex));
-    object_t *object = find_object(&state->objects, oc);
+    object_t *object = find_object(&vmod_state->objects, oc);
     if (object != NULL) {
         CHECK_OBJ_NOTNULL(object, OBJECT_MAGIC);
-        VRB_REMOVE(objects, &state->objects, object);
+        VRB_REMOVE(objects, &vmod_state->objects, object);
         free_object(object);
     }
     AZ(pthread_mutex_unlock(&mutex));
@@ -242,40 +280,25 @@ callback(struct worker *wrk, void *priv, struct objcore *oc, unsigned e)
  * gossip.dump();
  *****************************************************************************/
 
-struct dump_args {
-    unsigned magic;
-#define DUMP_ARGS_MAGIC 0xd5ae987b
-    double now;
-    const char *file;
-    unsigned discard;
-    state_t *state;
-};
-
-static void*
-dump(void *obj)
+static void
+dump(VRT_CTX, vmod_state_t *state, const char *filename, double now)
 {
-    struct dump_args *args;
-    CAST_OBJ_NOTNULL(args, obj, DUMP_ARGS_MAGIC);
-    CHECK_OBJ_NOTNULL(args->state, STATE_MAGIC);
+    CHECK_OBJ_NOTNULL(state, STATE_MAGIC);
 
-    VRT_CTX = NULL;
-
-    FILE *file = fopen(args->file, "w");
+    FILE *file = fopen(filename, "w");
     if (file == NULL) {
         LOG(ctx, LOG_ERR, "Failed to open output file %s (%s)",
-            args->file, strerror(errno));
+            filename, strerror(errno));
     } else {
-        LOG(ctx, LOG_INFO, "Started dump to file %s", args->file);
+        LOG(ctx, LOG_INFO, "Started dump to file %s", filename);
 
         struct vsb *vsb = VSB_new_auto();
         AN(vsb);
 
-        if (!args->discard) {
-            AZ(pthread_mutex_lock(&mutex));
-        }
+        AZ(VSB_printf(vsb, "{\"tst\"=%.6f,\"now\"=%.6f}\n", state->tst, now));
 
         object_t *object;
-        VRB_FOREACH(object, objects, &args->state->objects) {
+        VRB_FOREACH(object, objects, &state->objects) {
             CHECK_OBJ_NOTNULL(object, OBJECT_MAGIC);
 
             // XXX: safe accessing to object->oc without any locks?
@@ -293,34 +316,45 @@ dump(void *obj)
             AZ(VSB_cat(vsb, ","));
             AZ(VSB_printf(vsb, "\"hits\":%ld,", object->oc->hits));
             AZ(VSB_printf(vsb, "\"ttl\":%.6f,",
-                (object->oc->t_origin + object->oc->ttl) - args->now));
+                (object->oc->t_origin + object->oc->ttl) - now));
             AZ(VSB_printf(vsb, "\"grace\":%.6f,", object->oc->grace));
             AZ(VSB_printf(vsb, "\"keep\":%.6f", object->oc->keep));
             AZ(VSB_cat(vsb, "}\n"));
             AZ(VSB_finish(vsb));
 
             if (fwrite(VSB_data(vsb), 1, VSB_len(vsb), file) != VSB_len(vsb)) {
-                LOG(ctx, LOG_ERR, "Error while writing file %s", args->file);
+                LOG(ctx, LOG_ERR, "Error while writing file %s", filename);
             }
 
             VSB_clear(vsb);
         }
 
-        if (!args->discard) {
-            AZ(pthread_mutex_unlock(&mutex));
-        }
-
         VSB_destroy(&vsb);
         fclose(file);
 
-        LOG(ctx, LOG_INFO, "Finished dump to file %s", args->file);
+        LOG(ctx, LOG_INFO, "Finished dump to file %s", filename);
     }
+}
+
+struct dump_thread_args {
+    unsigned magic;
+#define DUMP_THREAD_ARGS_MAGIC 0xd5ae987b
+    double now;
+    const char *file;
+    vmod_state_t *state;
+};
+
+static void*
+dump_thread(void *obj)
+{
+    struct dump_thread_args *args;
+    CAST_OBJ_NOTNULL(args, obj, DUMP_THREAD_ARGS_MAGIC);
+    CHECK_OBJ_NOTNULL(args->state, STATE_MAGIC);
+
+    dump(NULL, args->state, args->file, args->now);
 
     free((void *) args->file);
-    if (args->discard) {
-        discard_objects(&args->state->objects);
-        FREE_OBJ(args->state);
-    }
+    free_vmod_state(args->state, 0);
     FREE_OBJ(args);
 
     return NULL;
@@ -329,28 +363,28 @@ dump(void *obj)
 VCL_VOID
 vmod_dump(VRT_CTX, VCL_STRING file, VCL_BOOL discard)
 {
+    struct dump_thread_args *args;
     double now = ctx2now(ctx);
 
-    struct dump_args *args;
-    ALLOC_OBJ(args, DUMP_ARGS_MAGIC);
-    AN(args);
-    args->now = now;
-    args->file = strdup(file);
-    AN(args->file);
-    args->discard = discard;
-    args->state = state;
+    AZ(pthread_mutex_lock(&mutex));
+    if (discard) {
+        ALLOC_OBJ(args, DUMP_THREAD_ARGS_MAGIC);
+        AN(args);
+        args->now = now;
+        args->file = strdup(file);
+        AN(args->file);
+        args->state = vmod_state;
+
+        vmod_state = new_vmod_state(now);
+    } else {
+        dump(ctx, vmod_state, file, now);
+    }
+    AZ(pthread_mutex_unlock(&mutex));
 
     if (discard) {
-        AZ(pthread_mutex_lock(&mutex));
-        ALLOC_OBJ(state, STATE_MAGIC);
-        AN(state);
-        state->tst = now;
-        VRB_INIT(&state->objects);
-        AZ(pthread_mutex_unlock(&mutex));
+        pthread_t thread;
+        AZ(pthread_create(&thread, NULL, &dump_thread, args));
     }
-
-    pthread_t thread;
-    AZ(pthread_create(&thread, NULL, &dump, args));
 }
 
 /******************************************************************************
@@ -361,8 +395,8 @@ VCL_VOID
 vmod_discard(VRT_CTX)
 {
     AZ(pthread_mutex_lock(&mutex));
-    state->tst = ctx2now(ctx);
-    discard_objects(&state->objects);
+    free_vmod_state(vmod_state, 1);
+    vmod_state = new_vmod_state(ctx2now(ctx));
     AZ(pthread_mutex_unlock(&mutex));
 }
 
@@ -563,12 +597,8 @@ event_function(VRT_CTX, struct vmod_priv *vcl_priv, enum vcl_event_e e)
         case VCL_EVENT_LOAD:
             AZ(pthread_mutex_lock(&mutex));
             if (inits == 0) {
-                if (state == NULL) {
-                    ALLOC_OBJ(state, STATE_MAGIC);
-                    AN(state);
-                    state->tst = ctx2now(ctx);
-                    VRB_INIT(&state->objects);
-                }
+                AZ(vmod_state);
+                vmod_state = new_vmod_state(ctx2now(ctx));
 #ifdef HAVE_ENUM_EXP_EVENT_E
                 callback_handle = EXP_Register_Callback(
                     callback, NULL);
@@ -594,7 +624,8 @@ event_function(VRT_CTX, struct vmod_priv *vcl_priv, enum vcl_event_e e)
                 ObjUnsubscribeEvents(&callback_handle);
 #endif
                 AZ(callback_handle);
-                discard_objects(&state->objects);
+                free_vmod_state(vmod_state, 1);
+                vmod_state = NULL;
             }
             AZ(pthread_mutex_unlock(&mutex));
             break;
