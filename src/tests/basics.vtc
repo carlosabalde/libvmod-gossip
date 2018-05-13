@@ -3,7 +3,7 @@ varnishtest "Test basics"
 server s1 {
     rxreq
     txresp -hdr "Vary: X-Device"
-} -repeat 5 -start
+} -repeat 6 -start
 
 varnish v1 -vcl+backend {
     import ${vmod_gossip};
