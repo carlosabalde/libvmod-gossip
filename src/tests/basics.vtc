@@ -34,47 +34,58 @@ client c1 {
     txreq -url /foo \
           -hdr "X-Device: desktop"
     rxresp
+    expect resp.status == 200
 
     txreq -url /foo \
           -hdr "X-Device: desktop"
     rxresp
+    expect resp.status == 200
 
     txreq -url /bar \
           -hdr "X-Device: desktop"
     rxresp
+    expect resp.status == 200
 
     txreq -url /bar \
           -hdr "X-Device: mobile"
     rxresp
+    expect resp.status == 200
 
     delay 1.0
     txreq -url /gossip/dump${tmpdir}/objects1.json
     rxresp
+    expect resp.status == 200
     delay 0.1
 
     txreq -url /foo \
           -hdr "X-Device: desktop"
     rxresp
+    expect resp.status == 200
 
     txreq -url /baz \
           -hdr "X-Device: mobile"
     rxresp
+    expect resp.status == 200
 
     delay 1.0
     txreq -url /gossip/dump${tmpdir}/objects2.json
     rxresp
+    expect resp.status == 200
     delay 0.1
 
     txreq -url /baz \
           -hdr "X-Device: mobile"
     rxresp
+    expect resp.status == 200
 
     txreq -url /gossip/discard/
     rxresp
+    expect resp.status == 200
 
     delay 1.0
     txreq -url /gossip/dump${tmpdir}/objects3.json
     rxresp
+    expect resp.status == 200
     delay 0.1
 } -run
 
