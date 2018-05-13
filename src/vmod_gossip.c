@@ -281,7 +281,9 @@ callback(struct worker *wrk, void *priv, struct objcore *oc, unsigned e)
  *****************************************************************************/
 
 static void
-dump(VRT_CTX, vmod_state_t *state, const char *filename, double now)
+dump(
+    VRT_CTX, vmod_state_t *state, const char *filename, double now,
+    unsigned safe_ocs)
 {
     CHECK_OBJ_NOTNULL(state, VMOD_STATE_MAGIC);
 
@@ -301,25 +303,30 @@ dump(VRT_CTX, vmod_state_t *state, const char *filename, double now)
         VRB_FOREACH(object, objects, &state->objects) {
             CHECK_OBJ_NOTNULL(object, OBJECT_MAGIC);
 
-            // XXX: safe accessing to object->oc without any locks?
-
-            if (object->oc->flags & OC_F_BUSY) {
-                continue;
+            if (safe_ocs) {
+                if (object->oc->flags & OC_F_BUSY) {
+                    continue;
+                }
             }
 
-            AZ(VSB_cat(vsb, "{\"info\":"));
+            if (safe_ocs) {
+                AZ(VSB_cat(vsb, "{\"info\":"));
+            }
             if (object->info != NULL) {
                 AZ(VSB_cat(vsb, object->info));
             } else {
                 AZ(VSB_cat(vsb, "null"));
             }
-            AZ(VSB_cat(vsb, ","));
-            AZ(VSB_printf(vsb, "\"hits\":%ld,", object->oc->hits));
-            AZ(VSB_printf(vsb, "\"ttl\":%.6f,",
-                (object->oc->t_origin + object->oc->ttl) - now));
-            AZ(VSB_printf(vsb, "\"grace\":%.6f,", object->oc->grace));
-            AZ(VSB_printf(vsb, "\"keep\":%.6f", object->oc->keep));
-            AZ(VSB_cat(vsb, "}\n"));
+            if (safe_ocs) {
+                AZ(VSB_cat(vsb, ","));
+                AZ(VSB_printf(vsb, "\"hits\":%ld,", object->oc->hits));
+                AZ(VSB_printf(vsb, "\"ttl\":%.6f,",
+                    (object->oc->t_origin + object->oc->ttl) - now));
+                AZ(VSB_printf(vsb, "\"grace\":%.6f,", object->oc->grace));
+                AZ(VSB_printf(vsb, "\"keep\":%.6f", object->oc->keep));
+                AZ(VSB_cat(vsb, "}"));
+            }
+            AZ(VSB_cat(vsb, "\n"));
             AZ(VSB_finish(vsb));
 
             if (fwrite(VSB_data(vsb), 1, VSB_len(vsb), file) != VSB_len(vsb)) {
@@ -351,7 +358,7 @@ dump_thread(void *obj)
     CAST_OBJ_NOTNULL(args, obj, DUMP_THREAD_ARGS_MAGIC);
     CHECK_OBJ_NOTNULL(args->state, VMOD_STATE_MAGIC);
 
-    dump(NULL, args->state, args->file, args->now);
+    dump(NULL, args->state, args->file, args->now, 0);
 
     free((void *) args->file);
     free_vmod_state(args->state, 0);
@@ -378,7 +385,7 @@ vmod_dump(VRT_CTX, VCL_STRING file, VCL_BOOL discard)
 
             vmod_state = new_vmod_state(now);
         } else {
-            dump(ctx, vmod_state, file, now);
+            dump(ctx, vmod_state, file, now, 1);
         }
         AZ(pthread_mutex_unlock(&mutex));
 
