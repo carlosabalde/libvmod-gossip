@@ -60,7 +60,7 @@ client c1 {
           -hdr "X-Device: mobile"
     rxresp
 
-    delay 0.1
+    delay 1.0
     txreq -url /gossip/dump${tmpdir}/objects2.json
     rxresp
     delay 0.1
@@ -72,7 +72,7 @@ client c1 {
     txreq -url /gossip/discard/
     rxresp
 
-    delay 0.1
+    delay 1.0
     txreq -url /gossip/dump${tmpdir}/objects3.json
     rxresp
     delay 0.1
