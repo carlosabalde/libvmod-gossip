@@ -2,8 +2,35 @@ varnishtest "Test basics"
 
 server s1 {
     rxreq
+    expect req.url == "/foo"
+    expect req.http.X-Device == "desktop"
     txresp -hdr "Vary: X-Device"
-} -repeat 6 -start
+
+    rxreq
+    expect req.url == "/bar"
+    expect req.http.X-Device == "desktop"
+    txresp -hdr "Vary: X-Device"
+
+    rxreq
+    expect req.url == "/bar"
+    expect req.http.X-Device == "mobile"
+    txresp -hdr "Vary: X-Device"
+
+    rxreq
+    expect req.url == "/foo"
+    expect req.http.X-Device == "desktop"
+    txresp -hdr "Vary: X-Device"
+
+    rxreq
+    expect req.url == "/baz"
+    expect req.http.X-Device == "mobile"
+    txresp -hdr "Vary: X-Device"
+
+    rxreq
+    expect req.url == "/baz"
+    expect req.http.X-Device == "mobile"
+    txresp -hdr "Vary: X-Device"
+} -start
 
 varnish v1 -vcl+backend {
     import ${vmod_gossip};
@@ -78,9 +105,11 @@ client c1 {
     rxresp
     expect resp.status == 200
 
+    delay 1.0
     txreq -url /gossip/discard/
     rxresp
     expect resp.status == 200
+    delay 0.1
 
     delay 1.0
     txreq -url /gossip/dump${tmpdir}/objects3.json
