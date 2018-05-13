@@ -88,9 +88,9 @@ Dump cache contents
     $ tail -f /tmp/objects.json
     {"tst"=0.000000,"now"=1526211998.300023}
     ...
-    {"info": {"url":"127.0.0.1/foo","device":"desktop","ip":"127.0.0.1"},"hits":2,"ttl":-0.537690,"grace":311040000.000000,"keep":0.000000}
-    {"info": {"url":"127.0.0.1/bar","device":"desktop","ip":"127.0.0.1"},"hits":0,"ttl":-0.524559,"grace":311040000.000000,"keep":0.000000}
-    {"info": {"url":"127.0.0.1/bar","device":"mobile","ip":"127.0.0.1"},"hits":0,"ttl":-0.513125,"grace":311040000.000000,"keep":0.000000}
+    {"url":"127.0.0.1/foo","device":"desktop","ip":"127.0.0.1"}
+    {"url":"127.0.0.1/bar","device":"desktop","ip":"127.0.0.1"}
+    {"url":"127.0.0.1/bar","device":"mobile","ip":"127.0.0.1"}
 
 INSTALLATION
 ============

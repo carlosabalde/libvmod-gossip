@@ -47,6 +47,11 @@ Description
             ...
         }
 
+    Dumping cache contents while blocking the Varnish instance (i.e.
+    ``discard`` disabled; strongly not recommended if the Varnish instance is
+    handling HTTP traffic) extends JSON output with extra object information
+    (i.e. current TTL, number of hits, etc.).
+
 $Function VOID discard()
 
 Description

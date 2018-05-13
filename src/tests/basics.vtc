@@ -123,17 +123,17 @@ delay 1.0
 shell {
     cat <<'EOF' > ${tmpdir}/parse.sh
 echo '----'
-cat ${tmpdir}/$1 | sed -n 's/^.*"path":"\([^"]*\)".*"hits":\([0-9]*\).*$/\1[\2]/p' | sort
+cat ${tmpdir}/$1 | sed -n 's/^.*"path":"\([^"]*\)".*$/\1/p' | sort
 echo '----'
 EOF
     chmod +x ${tmpdir}/parse.sh
 }
 
-shell -expect "----\n/bar[0]\n/bar[0]\n/foo[1]\n----\n" {
+shell -expect "----\n/bar\n/bar\n/foo\n----\n" {
     ${tmpdir}/parse.sh objects1.json
 }
 
-shell -expect "----\n/baz[0]\n/foo[0]\n----\n" {
+shell -expect "----\n/baz\n/foo\n----\n" {
     ${tmpdir}/parse.sh objects2.json
 }
 
