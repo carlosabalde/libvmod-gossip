@@ -78,7 +78,7 @@ static const char header[] = "X-Gossip-Info:";
 
 typedef struct vmod_state {
     unsigned magic;
-    #define STATE_MAGIC 0x78aaea42
+    #define VMOD_STATE_MAGIC 0x78aaea42
     double tst;
     objects_t objects;
 } vmod_state_t;
@@ -155,7 +155,7 @@ static vmod_state_t *
 new_vmod_state(double tst)
 {
     vmod_state_t *result;
-    ALLOC_OBJ(result, STATE_MAGIC);
+    ALLOC_OBJ(result, VMOD_STATE_MAGIC);
     AN(result);
 
     result->tst = tst;
@@ -169,7 +169,7 @@ static void*
 free_vmod_state_thread(void *obj)
 {
     vmod_state_t *state;
-    CAST_OBJ_NOTNULL(state, obj, STATE_MAGIC);
+    CAST_OBJ_NOTNULL(state, obj, VMOD_STATE_MAGIC);
 
     state->tst = 0.0;
     discard_objects(&state->objects);
@@ -283,7 +283,7 @@ callback(struct worker *wrk, void *priv, struct objcore *oc, unsigned e)
 static void
 dump(VRT_CTX, vmod_state_t *state, const char *filename, double now)
 {
-    CHECK_OBJ_NOTNULL(state, STATE_MAGIC);
+    CHECK_OBJ_NOTNULL(state, VMOD_STATE_MAGIC);
 
     FILE *file = fopen(filename, "w");
     if (file == NULL) {
@@ -349,7 +349,7 @@ dump_thread(void *obj)
 {
     struct dump_thread_args *args;
     CAST_OBJ_NOTNULL(args, obj, DUMP_THREAD_ARGS_MAGIC);
-    CHECK_OBJ_NOTNULL(args->state, STATE_MAGIC);
+    CHECK_OBJ_NOTNULL(args->state, VMOD_STATE_MAGIC);
 
     dump(NULL, args->state, args->file, args->now);
 
