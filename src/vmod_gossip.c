@@ -5,9 +5,9 @@
 #include <syslog.h>
 #include <errno.h>
 
-#include <cache/cache_varnishd.h>
-#include <vsb.h>
-#include <vcl.h>
+#include "cache/cache_varnishd.h"
+#include "vsb.h"
+#include "vcl.h"
 #include "vcc_gossip_if.h"
 
 #include "vtree.h"
