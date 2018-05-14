@@ -44,7 +44,7 @@ varnish v1 -vcl+backend {
             return (synth(200, "Discarded."));
         }
 
-        set req.http.X-ClientIp = client.ip;
+        set req.http.X-Client-IP = client.ip;
     }
 
     sub vcl_backend_response {
@@ -52,7 +52,7 @@ varnish v1 -vcl+backend {
             {"{"} +
             {""path":""} + gossip.escape_json_string(bereq.url) + {"","} +
             {""device":""} + gossip.escape_json_string(bereq.http.X-Device) + {"","} +
-            {""ip":""} + gossip.escape_json_string(bereq.http.X-ClientIp) + {"""} +
+            {""ip":""} + gossip.escape_json_string(bereq.http.X-Client-IP) + {"""} +
             {"}"};
         set beresp.ttl = 0.5s;
         set beresp.grace = 10s;

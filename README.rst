@@ -58,6 +58,8 @@ EXAMPLE
                 return (synth(405, "Not allowed."));
             }
         }
+
+        set req.http.X-Client-IP = client.ip;
     }
 
     sub vcl_deliver {
@@ -69,7 +71,7 @@ EXAMPLE
             {"{"} +
             {""url":""} + gossip.escape_json_string(bereq.http.Host + bereq.url) + {"","} +
             {""device":""} + gossip.escape_json_string(bereq.http.X-Device) + {"","} +
-            {""ip":""} + gossip.escape_json_string(client.ip) + {"""} +
+            {""ip":""} + gossip.escape_json_string(bereq.http.X-Client-IP) + {"""} +
             {"}"};
         set beresp.ttl = 1h;
         set beresp.grace = 24h;
