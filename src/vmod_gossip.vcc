@@ -27,7 +27,7 @@ Arguments
     contents while the Varnish instance is handling HTTP traffic. Otherwise
     the instance will be blocked while writing the JSON file.
 Description
-    When enabled, the VMOD actively listens to object insertion and deletion
+    When loaded, the VMOD actively listens to object insertion and deletion
     events. That way the VMOD builds an internal representation of objects
     currently stored in the cache, but **only** since the last dump operation
     (assuming the ``discard`` argument is enabled; strongly recommended). In
