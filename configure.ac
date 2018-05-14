@@ -43,13 +43,6 @@ PKG_CHECK_VAR([LIBVARNISHAPI_LIBDIR], [varnishapi], [libdir])
 AC_SUBST([VARNISH_LIBRARY_PATH],
 	[$LIBVARNISHAPI_LIBDIR:$LIBVARNISHAPI_LIBDIR/varnish])
 
-save_CPPFLAGS=$CPPFLAGS
-CPPFLAGS=$VARNISHAPI_CFLAGS
-AC_CHECK_HEADERS([cache/cache_varnishd.h])
-AC_CHECK_TYPES([req_body_iter_f, objiterate_f, enum exp_event_e],
-        [], [], [#include <cache/cache.h>])
-CPPFLAGS=$save_CPPFLAGS
-
 AC_CONFIG_FILES([
 	Makefile
 	src/Makefile

@@ -1,5 +1,3 @@
-#include "config.h"
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -7,15 +5,9 @@
 #include <syslog.h>
 #include <errno.h>
 
-#ifdef HAVE_CACHE_CACHE_VARNISHD_H
-#  include <cache/cache_varnishd.h>
-#else
-#  include <cache/cache.h>
-#endif
-
+#include <cache/cache_varnishd.h>
 #include <vsb.h>
 #include <vcl.h>
-
 #include "vcc_gossip_if.h"
 
 #include "vtree.h"
@@ -231,29 +223,6 @@ remove_callback(struct objcore *oc)
     AZ(pthread_mutex_unlock(&mutex));
 }
 
-#if HAVE_ENUM_EXP_EVENT_E
-static void
-callback(struct worker *wrk, struct objcore *oc, enum exp_event_e e, void *priv)
-{
-    CHECK_OBJ_NOTNULL(wrk, WORKER_MAGIC);
-    CHECK_OBJ_NOTNULL(oc, OBJCORE_MAGIC);
-    AZ(priv);
-
-    switch (e) {
-        case EXP_INSERT:
-        case EXP_INJECT:
-            insert_callback(wrk, oc);
-            break;
-
-        case EXP_REMOVE:
-            remove_callback(oc);
-            break;
-
-        default:
-            WRONG("Unexpected event");
-    }
-}
-#else
 static void
 callback(struct worker *wrk, void *priv, struct objcore *oc, unsigned e)
 {
@@ -275,7 +244,6 @@ callback(struct worker *wrk, void *priv, struct objcore *oc, unsigned e)
             WRONG("Unexpected event");
     }
 }
-#endif
 
 /******************************************************************************
  * gossip.dump();
@@ -609,13 +577,8 @@ event_function(VRT_CTX, struct vmod_priv *vcl_priv, enum vcl_event_e e)
             if (inits == 0) {
                 AZ(vmod_state);
                 vmod_state = new_vmod_state(ctx2now(ctx));
-#ifdef HAVE_ENUM_EXP_EVENT_E
-                callback_handle = EXP_Register_Callback(
-                    callback, NULL);
-#else
                 callback_handle = ObjSubscribeEvents(
                     callback, NULL, OEV_INSERT|OEV_EXPIRE);
-#endif
                 AN(callback_handle);
                 inits++;
             }
@@ -628,11 +591,7 @@ event_function(VRT_CTX, struct vmod_priv *vcl_priv, enum vcl_event_e e)
             inits--;
             AN(callback_handle);
             if (inits == 0) {
-#ifdef HAVE_ENUM_EXP_EVENT_E
-                EXP_Deregister_Callback(&callback_handle);
-#else
                 ObjUnsubscribeEvents(&callback_handle);
-#endif
                 AZ(callback_handle);
                 free_vmod_state(vmod_state, 1);
                 vmod_state = NULL;
