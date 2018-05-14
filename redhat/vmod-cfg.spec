@@ -1,6 +1,6 @@
 Summary: Gossip VMOD for Varnish
 Name: vmod-gossip
-Version: 1.0
+Version: 2.0
 Release: 1%{?dist}
 License: BSD
 URL: https://github.com/carlosabalde/libvmod-gossip

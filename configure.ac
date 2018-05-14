@@ -1,5 +1,5 @@
 AC_PREREQ([2.68])
-AC_INIT([libvmod-gossip], [1.0], [], [vmod-gossip])
+AC_INIT([libvmod-gossip], [2.0], [], [vmod-gossip])
 AC_COPYRIGHT([Copyright (c) 2018 Carlos Abalde <carlos.abalde@gmail.com>])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR(src/vmod_gossip.vcc)
