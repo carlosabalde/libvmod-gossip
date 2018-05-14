@@ -5,6 +5,7 @@
 #include <string.h>
 #include <pthread.h>
 #include <syslog.h>
+#include <ctype.h>
 #include <errno.h>
 
 #ifdef HAVE_CACHE_CACHE_VARNISHD_H
@@ -204,6 +205,7 @@ insert_callback(struct worker *wrk, struct objcore *oc)
             info = strchr(info, ':');
             AN(info);
             info++;
+            for (; isspace(*info); info++);
             break;
         }
     }
