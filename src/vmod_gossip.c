@@ -3,6 +3,7 @@
 #include <string.h>
 #include <pthread.h>
 #include <syslog.h>
+#include <ctype.h>
 #include <errno.h>
 
 #include "vcl.h"
@@ -187,6 +188,7 @@ insert_callback(struct worker *wrk, struct objcore *oc)
             info = strchr(info, ':');
             AN(info);
             info++;
+            for (; isspace(*info); info++);
             break;
         }
     }

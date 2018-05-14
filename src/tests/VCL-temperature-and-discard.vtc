@@ -1,0 +1,86 @@
+varnishtest "Test VCL temperature and discard"
+
+server s1 {
+    rxreq
+    expect req.url == "/foo"
+    txresp
+
+    rxreq
+    expect req.url == "/bar"
+    txresp
+
+    rxreq
+    expect req.url == "/baz"
+    txresp
+} -start
+
+varnish v1 -vcl+backend {
+    import gossip from "${vmod_topbuild}/src/.libs/libvmod_gossip.so";
+
+    sub vcl_recv {
+        if (req.url ~ "^/gossip/dump/.+") {
+            gossip.dump(regsub(req.url, "/gossip/dump", ""));
+            return (synth(200, "Now dumping."));
+        }
+    }
+
+    sub vcl_backend_response {
+        set beresp.http.X-Gossip-Info =
+            {"""} +
+            gossip.escape_json_string(bereq.url) +
+            {"""};
+        set beresp.ttl = 0.5s;
+        set beresp.grace = 10s;
+    }
+} -start
+
+client c1 {
+    txreq -url /foo
+    rxresp
+    expect resp.status == 200
+
+    delay 1.0
+    txreq -url /gossip/dump/dev/null
+    rxresp
+    expect resp.status == 200
+    delay 0.1
+
+    txreq -url /bar
+    rxresp
+    expect resp.status == 200
+} -run
+
+delay 1.0
+
+varnish v1 -vcl+backend {
+}
+
+varnish v1 -cliok "vcl.state vcl1 cold"
+
+varnish v1 -cliok "vcl.use vcl1"
+
+client c1 {
+    txreq -url /baz
+    rxresp
+    expect resp.status == 200
+
+    delay 1.0
+    txreq -url /gossip/dump${tmpdir}/objects.json
+    rxresp
+    expect resp.status == 200
+    delay 0.1
+} -run
+
+shell -expect "----\n/bar\n/baz\n----\n" {
+    echo '----'
+    tail -n +2 ${tmpdir}/objects.json | sed 's/"//g' | sort
+    echo '----'
+}
+
+varnish v1 -cliok "vcl.use vcl2"
+
+varnish v1 -cliok "vcl.discard vcl1"
+
+varnish v1 -expect client_req == 5
+
+varnish v1 -expect MGT.child_panic == 0
