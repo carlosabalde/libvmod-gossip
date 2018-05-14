@@ -13,6 +13,7 @@
 #  include <cache/cache.h>
 #endif
 
+#include <vsb.h>
 #include <vcl.h>
 
 #include "vcc_gossip_if.h"
