@@ -1,3 +1,5 @@
+#include "config.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -5,9 +7,14 @@
 #include <syslog.h>
 #include <errno.h>
 
-#include "cache/cache_varnishd.h"
-#include "vsb.h"
-#include "vcl.h"
+#ifdef HAVE_CACHE_CACHE_VARNISHD_H
+#  include <cache/cache_varnishd.h>
+#else
+#  include <cache/cache.h>
+#endif
+
+#include <vsb.h>
+#include <vcl.h>
 #include "vcc_gossip_if.h"
 
 #include "vtree.h"
