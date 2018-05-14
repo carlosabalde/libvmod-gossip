@@ -1,5 +1,3 @@
-#include "config.h"
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -7,16 +5,10 @@
 #include <syslog.h>
 #include <errno.h>
 
-#ifdef HAVE_CACHE_CACHE_VARNISHD_H
-#  include <cache/cache_varnishd.h>
-#else
-#  include <cache/cache.h>
-#endif
-
-#include <vsb.h>
-#include <vcl.h>
-
-#include "vcc_gossip_if.h"
+#include "vcl.h"
+#include "vrt.h"
+#include "cache/cache.h"
+#include "vcc_if.h"
 
 #include "vtree.h"
 
@@ -35,16 +27,6 @@
             VSL(slt, 0, "[GOSSIP][%s:%d] " fmt, __func__, __LINE__, __VA_ARGS__); \
         } \
     } while (0)
-
-#define FAIL(ctx, result, fmt, ...) \
-    do { \
-        syslog(LOG_ALERT, "[GOSSIP][%s:%d] " fmt, __func__, __LINE__, ##__VA_ARGS__); \
-        VRT_fail(ctx, "[GOSSIP][%s:%d] " fmt, __func__, __LINE__, ##__VA_ARGS__); \
-        return result; \
-    } while (0)
-
-#define FAIL_WS(ctx, result) \
-    FAIL(ctx, result, "Workspace overflow")
 
 typedef struct object {
     unsigned magic;
@@ -231,7 +213,6 @@ remove_callback(struct objcore *oc)
     AZ(pthread_mutex_unlock(&mutex));
 }
 
-#if HAVE_ENUM_EXP_EVENT_E
 static void
 callback(struct worker *wrk, struct objcore *oc, enum exp_event_e e, void *priv)
 {
@@ -253,29 +234,6 @@ callback(struct worker *wrk, struct objcore *oc, enum exp_event_e e, void *priv)
             WRONG("Unexpected event");
     }
 }
-#else
-static void
-callback(struct worker *wrk, void *priv, struct objcore *oc, unsigned e)
-{
-    CHECK_OBJ_NOTNULL(wrk, WORKER_MAGIC);
-    CHECK_OBJ_NOTNULL(oc, OBJCORE_MAGIC);
-    AZ(priv);
-    AN(e);
-
-    switch (e) {
-        case OEV_INSERT:
-            insert_callback(wrk, oc);
-            break;
-
-        case OEV_EXPIRE:
-            remove_callback(oc);
-            break;
-
-        default:
-            WRONG("Unexpected event");
-    }
-}
-#endif
 
 /******************************************************************************
  * gossip.dump();
@@ -322,9 +280,9 @@ dump(
                 AZ(VSB_cat(vsb, ","));
                 AZ(VSB_printf(vsb, "\"hits\":%ld,", object->oc->hits));
                 AZ(VSB_printf(vsb, "\"ttl\":%.6f,",
-                    (object->oc->t_origin + object->oc->ttl) - now));
-                AZ(VSB_printf(vsb, "\"grace\":%.6f,", object->oc->grace));
-                AZ(VSB_printf(vsb, "\"keep\":%.6f", object->oc->keep));
+                    (object->oc->exp.t_origin + object->oc->exp.ttl) - now));
+                AZ(VSB_printf(vsb, "\"grace\":%.6f,", object->oc->exp.grace));
+                AZ(VSB_printf(vsb, "\"keep\":%.6f", object->oc->exp.keep));
                 AZ(VSB_cat(vsb, "}"));
             }
             AZ(VSB_cat(vsb, "\n"));
@@ -585,10 +543,7 @@ vmod_escape_json_string(VRT_CTX, VCL_STRING value)
         result = ctx->ws->f;
 
         int used_ws = escape_json_string(value, result, free_ws);
-        if (used_ws <= 0) {
-            WS_Release(ctx->ws, 0);
-            FAIL_WS(ctx, NULL);
-        }
+        assert(used_ws > 0);
 
         WS_Release(ctx->ws, used_ws);
     }
@@ -609,13 +564,8 @@ event_function(VRT_CTX, struct vmod_priv *vcl_priv, enum vcl_event_e e)
             if (inits == 0) {
                 AZ(vmod_state);
                 vmod_state = new_vmod_state(ctx2now(ctx));
-#ifdef HAVE_ENUM_EXP_EVENT_E
                 callback_handle = EXP_Register_Callback(
                     callback, NULL);
-#else
-                callback_handle = ObjSubscribeEvents(
-                    callback, NULL, OEV_INSERT|OEV_EXPIRE);
-#endif
                 AN(callback_handle);
                 inits++;
             }
@@ -628,11 +578,7 @@ event_function(VRT_CTX, struct vmod_priv *vcl_priv, enum vcl_event_e e)
             inits--;
             AN(callback_handle);
             if (inits == 0) {
-#ifdef HAVE_ENUM_EXP_EVENT_E
                 EXP_Deregister_Callback(&callback_handle);
-#else
-                ObjUnsubscribeEvents(&callback_handle);
-#endif
                 AZ(callback_handle);
                 free_vmod_state(vmod_state, 1);
                 vmod_state = NULL;

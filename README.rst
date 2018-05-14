@@ -1,10 +1,7 @@
 
-.. image:: https://travis-ci.org/carlosabalde/libvmod-gossip.svg?branch=6.0
+.. image:: https://travis-ci.org/carlosabalde/libvmod-gossip.svg?branch=4.1
    :alt: Travis CI badge
    :target: https://travis-ci.org/carlosabalde/libvmod-gossip/
-.. image:: https://codecov.io/gh/carlosabalde/libvmod-gossip/branch/6.0/graph/badge.svg
-   :alt: Codecov badge
-   :target: https://codecov.io/gh/carlosabalde/libvmod-gossip
 
 VMOD useful to dump customizable information about contents currently stored in the cache to a JSON file for subsequent analysis in order to consider better caching strategies.
 

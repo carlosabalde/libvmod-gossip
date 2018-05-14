@@ -11,7 +11,7 @@ $script = <<SCRIPT
 
   # Varnish Cache.
   sudo -u vagrant bash -c '\
-    wget --no-check-certificate http://varnish-cache.org/_downloads/varnish-6.0.0.tgz; \
+    wget --no-check-certificate http://varnish-cache.org/_downloads/varnish-4.1.9.tgz; \
     tar zxvf varnish-*.tgz; \
     rm -f varnish-*.tgz; \
     cd varnish-*; \
@@ -47,15 +47,15 @@ Vagrant.configure('2') do |config|
     ]
   end
 
-  config.vm.define :v60 do |machine|
-    machine.vm.box = 'ubuntu/xenial64'
-    machine.vm.box_version = '=20180315.0.0'
+  config.vm.define :v41 do |machine|
+    machine.vm.box = 'ubuntu/trusty64'
+    machine.vm.box_version = '=14.04'
     machine.vm.box_check_update = true
     machine.vm.provision :shell, :privileged => true, :keep_color => false, :inline => $script
     machine.vm.provider :virtualbox do |vb|
       vb.customize [
         'modifyvm', :id,
-        '--name', 'libvmod-gossip (Varnish 6.0.x)',
+        '--name', 'libvmod-gossip (Varnish 4.1.x)',
       ]
     end
   end

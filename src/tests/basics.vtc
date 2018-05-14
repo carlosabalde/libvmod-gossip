@@ -33,7 +33,7 @@ server s1 {
 } -start
 
 varnish v1 -vcl+backend {
-    import ${vmod_gossip};
+    import gossip from "${vmod_topbuild}/src/.libs/libvmod_gossip.so";
 
     sub vcl_recv {
         if (req.url ~ "^/gossip/dump/.+") {
@@ -43,6 +43,8 @@ varnish v1 -vcl+backend {
             gossip.discard();
             return (synth(200, "Discarded."));
         }
+
+        set req.http.X-ClientIp = client.ip;
     }
 
     sub vcl_backend_response {
@@ -50,7 +52,7 @@ varnish v1 -vcl+backend {
             {"{"} +
             {""path":""} + gossip.escape_json_string(bereq.url) + {"","} +
             {""device":""} + gossip.escape_json_string(bereq.http.X-Device) + {"","} +
-            {""ip":""} + gossip.escape_json_string(client.ip) + {"""} +
+            {""ip":""} + gossip.escape_json_string(bereq.http.X-ClientIp) + {"""} +
             {"}"};
         set beresp.ttl = 0.5s;
         set beresp.grace = 10s;

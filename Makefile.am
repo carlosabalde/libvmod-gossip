@@ -1,15 +1,25 @@
-ACLOCAL_AMFLAGS = -I m4 -I ${VARNISHAPI_DATAROOTDIR}/aclocal
+ACLOCAL_AMFLAGS = -I m4 -I ${LIBVARNISHAPI_DATAROOTDIR}/aclocal
 
 SUBDIRS = src
 
-dist_doc_DATA = README.rst LICENSE
+DISTCHECK_CONFIGURE_FLAGS = \
+	VMOD_DIR='$${libdir}/varnish/vmods'
 
-# lcov support
+EXTRA_DIST = README.rst LICENSE redhat debian
 
-CODE_COVERAGE_OUTPUT_DIRECTORY = lcov
-CODE_COVERAGE_IGNORE_PATTERN = "/usr/*"
-CODE_COVERAGE_GENHTML_OPTIONS = --prefix $(abs_top_srcdir)
+doc_DATA = README.rst LICENSE
 
-@CODE_COVERAGE_RULES@
+dist_man_MANS = vmod_gossip.3
+MAINTAINERCLEANFILES = $(dist_man_MANS)
 
-lcov: check-code-coverage
+vmod_gossip.3: src/vmod_gossip.man.rst
+
+%.1 %.2 %.3 %.4 %.5 %.6 %.7 %.8 %.9:
+if HAVE_RST2MAN
+		${RST2MAN} $< $@
+else
+		@echo "========================================"
+		@echo "You need rst2man installed to make dist"
+		@echo "========================================"
+		@false
+endif
