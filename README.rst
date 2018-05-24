@@ -34,20 +34,19 @@ EXAMPLE
     vcl 4.0;
 
     import gossip;
-    import std;
 
     backend default {
         .host = "127.0.0.1";
         .port = "8080";
     }
 
-    acl internal {
+    acl local {
         "localhost";
     }
 
     sub vcl_recv {
         if (req.url ~ "^/gossip/(?:dump/.+|discard/)$") {
-            if (client.ip ~ internal) {
+            if (client.ip ~ local) {
                 if (req.url ~ "^/gossip/dump/.+") {
                     gossip.dump(regsub(req.url, "/gossip/dump", ""));
                     return (synth(200, "Now dumping."));
@@ -70,6 +69,7 @@ EXAMPLE
     sub vcl_backend_response {
         set beresp.http.X-Gossip-Info =
             {"{"} +
+            {""tst":"} + std.time2real(now, 0) + {","} +
             {""url":""} + gossip.escape_json_string(bereq.http.Host + bereq.url) + {"","} +
             {""device":""} + gossip.escape_json_string(bereq.http.X-Device) + {"","} +
             {""ip":""} + gossip.escape_json_string(client.ip) + {"""} +
@@ -86,11 +86,12 @@ Dump cache contents
     $ curl http://127.0.0.1/gossip/dump/tmp/objects.json
 
     $ tail -f /tmp/objects.json
-    {"tst"=0.000000,"now"=1526211998.300023}
+    {"tst"=0.000000,"now"=1527154238.506256}
     ...
-    {"url":"127.0.0.1/foo","device":"desktop","ip":"127.0.0.1"}
-    {"url":"127.0.0.1/bar","device":"desktop","ip":"127.0.0.1"}
-    {"url":"127.0.0.1/bar","device":"mobile","ip":"127.0.0.1"}
+    {"tst":1527154237.470,"url":"127.0.0.1/foo","device":"desktop","ip":"127.0.0.1"}
+    {"tst":1527154237.483,"url":"127.0.0.1/bar","device":"desktop","ip":"127.0.0.1"}
+    {"tst":1527154237.494,"url":"127.0.0.1/bar","device":"mobile","ip":"127.0.0.1"}
+
 
 INSTALLATION
 ============
