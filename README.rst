@@ -34,21 +34,34 @@ EXAMPLE
     vcl 4.0;
 
     import gossip;
+    import std;
 
     backend default {
         .host = "127.0.0.1";
         .port = "8080";
     }
 
-    acl local {
+    acl local_acl {
         "localhost";
     }
 
     sub vcl_recv {
         if (req.url ~ "^/gossip/(?:dump/.+|discard/)$") {
-            if (client.ip ~ local) {
+            if (client.ip ~ local_acl) {
                 if (req.url ~ "^/gossip/dump/.+") {
-                    gossip.dump(regsub(req.url, "/gossip/dump", ""));
+                    set req.http.X-Gossip-File = regsub(
+                        regsub(req.url, "^/gossip/dump", ""),
+                        "\?.*$",
+                        "");
+                    if (req.url ~ "[?&]discard=[^&]*") {
+                        set req.http.X-Gossip-Discard = regsub(
+                            req.url,
+                            "^.*[?&]discard=([^&]*).*$",
+                            "\1");
+                    }
+                    gossip.dump(
+                        req.http.X-Gossip-File,
+                        std.integer(req.http.X-Gossip-Discard, 1) > 0);
                     return (synth(200, "Now dumping."));
                 } elsif (req.url == "/gossip/discard/") {
                     gossip.discard();
@@ -74,6 +87,7 @@ EXAMPLE
             {""device":""} + gossip.escape_json_string(bereq.http.X-Device) + {"","} +
             {""ip":""} + gossip.escape_json_string(client.ip) + {"""} +
             {"}"};
+
         set beresp.ttl = 1h;
         set beresp.grace = 24h;
     }
