@@ -258,7 +258,7 @@ dump(
         struct vsb *vsb = VSB_new_auto();
         AN(vsb);
 
-        AZ(VSB_printf(vsb, "{\"tst\"=%.6f,\"now\"=%.6f}\n", state->tst, now));
+        AZ(VSB_printf(vsb, "{\"tst\":%.6f,\"now\":%.6f}\n", state->tst, now));
 
         object_t *object;
         VRB_FOREACH(object, objects, &state->objects) {
