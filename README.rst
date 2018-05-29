@@ -100,7 +100,7 @@ Dump cache contents
     $ curl http://127.0.0.1/gossip/dump/tmp/objects.json?discard=0
 
     $ cat /tmp/objects.json
-    {"tst"=0.000000,"now"=1527154240.137104}
+    {"tst":0.000000,"now":1527154240.137104}
     ...
     {"info":{"tst":1527154237.470,"url":"127.0.0.1/foo","device":"desktop","ip":"127.0.0.1"},"hits":42,"ttl":3597.545651,"grace":86400.000000,"keep":0.000000}
     {"info":{"tst":1527154237.483,"url":"127.0.0.1/bar","device":"desktop","ip":"127.0.0.1"},"hits":314,"ttl":3597.651994,"grace":86400.000000,"keep":0.000000}
@@ -109,7 +109,7 @@ Dump cache contents
     $ curl http://127.0.0.1/gossip/dump/tmp/objects.json?discard=1
 
     $ cat /tmp/objects.json
-    {"tst"=0.000000,"now"=1527154241.506256}
+    {"tst":0.000000,"now":1527154241.506256}
     ...
     {"tst":1527154237.470,"url":"127.0.0.1/foo","device":"desktop","ip":"127.0.0.1"}
     {"tst":1527154237.483,"url":"127.0.0.1/bar","device":"desktop","ip":"127.0.0.1"}
