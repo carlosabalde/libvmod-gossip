@@ -23,6 +23,7 @@ addons:
     packages:
     - lcov
     - python-docutils
+    - python-sphinx
 
 before_install:
   - git clone https://github.com/varnishcache/varnish-cache.git ./varnish
