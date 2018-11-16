@@ -11,6 +11,9 @@
 #include "cache/cache.h"
 #include "vcc_if.h"
 
+#ifndef v_unused_
+#  define v_unused_ __attribute__((__unused__))
+#endif
 #include "vtree.h"
 
 #define LOG(ctx, level, fmt, ...) \

@@ -30,10 +30,6 @@
 #ifndef	_VTREE_H_
 #define	_VTREE_H_
 
-#ifndef __unused
-#define __unused __attribute__((__unused__))
-#endif
-
 /*
  * This file defines data structures for different types of trees:
  * splay trees and red-black trees.
@@ -383,7 +379,7 @@ struct {								\
 #define	VRBT_PROTOTYPE(name, type, field, cmp)			\
 	VRBT_PROTOTYPE_INTERNAL(name, type, field, cmp,)
 #define	VRBT_PROTOTYPE_STATIC(name, type, field, cmp)		\
-	VRBT_PROTOTYPE_INTERNAL(name, type, field, cmp, __unused static)
+	VRBT_PROTOTYPE_INTERNAL(name, type, field, cmp, v_unused_ static)
 #define VRBT_PROTOTYPE_INTERNAL(name, type, field, cmp, attr)		\
 /*lint -esym(528, name##_VRBT_*) */					\
 attr void name##_VRBT_INSERT_COLOR(struct name *, struct type *);	\
@@ -403,7 +399,7 @@ attr struct type *name##_VRBT_MINMAX(const struct name *, int);		\
 #define	VRBT_GENERATE(name, type, field, cmp)			\
 	VRBT_GENERATE_INTERNAL(name, type, field, cmp,)
 #define	VRBT_GENERATE_STATIC(name, type, field, cmp)		\
-	VRBT_GENERATE_INTERNAL(name, type, field, cmp, __unused static)
+	VRBT_GENERATE_INTERNAL(name, type, field, cmp, v_unused_ static)
 #define VRBT_GENERATE_INTERNAL(name, type, field, cmp, attr)		\
 attr void								\
 name##_VRBT_INSERT_COLOR(struct name *head, struct type *elm)		\
