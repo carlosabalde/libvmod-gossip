@@ -34,10 +34,10 @@ typedef struct object {
     #define OBJECT_MAGIC 0x83a592da
     struct objcore *oc;
     const char *info;
-    VRB_ENTRY(object) tree;
+    VRBT_ENTRY(object) tree;
 } object_t;
 
-typedef VRB_HEAD(objects, object) objects_t;
+typedef VRBT_HEAD(objects, object) objects_t;
 
 static int
 objectcmp(const object_t *i1, const object_t *i2)
@@ -51,8 +51,8 @@ objectcmp(const object_t *i1, const object_t *i2)
     return 0;
 }
 
-VRB_PROTOTYPE_STATIC(objects, object, tree, objectcmp);
-VRB_GENERATE_STATIC(objects, object, tree, objectcmp);
+VRBT_PROTOTYPE_STATIC(objects, object, tree, objectcmp);
+VRBT_GENERATE_STATIC(objects, object, tree, objectcmp);
 
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 static unsigned inits = 0;
@@ -110,16 +110,16 @@ find_object(objects_t *objects, struct objcore *oc)
 {
     object_t object;
     object.oc = oc;
-    return VRB_FIND(objects, objects, &object);
+    return VRBT_FIND(objects, objects, &object);
 }
 
 static void
 discard_objects(objects_t *objects)
 {
     object_t *object, *tmp;
-    VRB_FOREACH_SAFE(object, objects, objects, tmp) {
+    VRBT_FOREACH_SAFE(object, objects, objects, tmp) {
         CHECK_OBJ_NOTNULL(object, OBJECT_MAGIC);
-        VRB_REMOVE(objects, objects, object);
+        VRBT_REMOVE(objects, objects, object);
         free_object(object);
     }
 }
@@ -144,7 +144,7 @@ new_vmod_state(double tst)
 
     result->tst = tst;
 
-    VRB_INIT(&result->objects);
+    VRBT_INIT(&result->objects);
 
     return result;
 }
@@ -196,7 +196,7 @@ insert_callback(struct worker *wrk, struct objcore *oc)
     object_t *object = new_object(oc, info);
 
     AZ(pthread_mutex_lock(&mutex));
-    AZ(VRB_INSERT(objects, &vmod_state->objects, object));
+    AZ(VRBT_INSERT(objects, &vmod_state->objects, object));
     AZ(pthread_mutex_unlock(&mutex));
 }
 
@@ -209,7 +209,7 @@ remove_callback(struct objcore *oc)
     object_t *object = find_object(&vmod_state->objects, oc);
     if (object != NULL) {
         CHECK_OBJ_NOTNULL(object, OBJECT_MAGIC);
-        VRB_REMOVE(objects, &vmod_state->objects, object);
+        VRBT_REMOVE(objects, &vmod_state->objects, object);
         free_object(object);
     }
     AZ(pthread_mutex_unlock(&mutex));
@@ -261,7 +261,7 @@ dump(
         AZ(VSB_printf(vsb, "{\"tst\":%.6f,\"now\":%.6f}\n", state->tst, now));
 
         object_t *object;
-        VRB_FOREACH(object, objects, &state->objects) {
+        VRBT_FOREACH(object, objects, &state->objects) {
             CHECK_OBJ_NOTNULL(object, OBJECT_MAGIC);
 
             if (safe_ocs) {
