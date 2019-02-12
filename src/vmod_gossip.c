@@ -578,7 +578,7 @@ vmod_escape_json_string(VRT_CTX, VCL_STRING value)
  *****************************************************************************/
 
 int
-event_function(VRT_CTX, struct vmod_priv *vcl_priv, enum vcl_event_e e)
+vmod_event_function(VRT_CTX, struct vmod_priv *vcl_priv, enum vcl_event_e e)
 {
     switch (e) {
         case VCL_EVENT_LOAD:
