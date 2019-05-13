@@ -558,7 +558,7 @@ vmod_escape_json_string(VRT_CTX, VCL_STRING value)
     char *result = NULL;
 
     if (value != NULL) {
-        unsigned free_ws = WS_Reserve(ctx->ws, 0);
+        unsigned free_ws = WS_ReserveAll(ctx->ws);
         result = ctx->ws->f;
 
         int used_ws = escape_json_string(value, result, free_ws);
