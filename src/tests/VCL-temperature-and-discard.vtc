@@ -57,6 +57,8 @@ varnish v1 -vcl+backend {
 
 varnish v1 -cliok "vcl.state vcl1 cold"
 
+varnish v1 -cliok "vcl.state vcl1 warm"
+
 varnish v1 -cliok "vcl.use vcl1"
 
 client c1 {
