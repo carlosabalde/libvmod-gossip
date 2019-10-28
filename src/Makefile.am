@@ -20,11 +20,15 @@ vcc_if.c: vcc_if.h
 vcc_if.h: @VMODTOOL@ $(top_srcdir)/src/vmod_gossip.vcc
 	@VMODTOOL@ $(top_srcdir)/src/vmod_gossip.vcc
 
-VMOD_TESTS = $(top_srcdir)/src/tests/*.vtc
-.PHONY: $(VMOD_TESTS)
+AM_TESTS_ENVIRONMENT = \
+	PATH="$(VMOD_TEST_PATH)" \
+	LD_LIBRARY_PATH="$(VARNISH_LIBRARY_PATH)"
+TEST_EXTENSIONS = .vtc
+VTC_LOG_COMPILER = varnishtest
+AM_VTC_LOG_FLAGS = -v -Dvmod_gossip="$(VMOD_GOSSIP)"
 
 $(top_srcdir)/src/tests/*.vtc: libvmod_gossip.la
-	@VARNISHTEST@ $@ -Dvarnishd=@VARNISHD@ -Dvmod_topbuild=$(abs_top_builddir)
+	@VARNISHTEST@ -Dvarnishd=@VARNISHD@ -Dvmod_topbuild=$(abs_top_builddir) $@
 
 check: $(VMOD_TESTS)
 
