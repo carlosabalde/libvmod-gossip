@@ -5,6 +5,8 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR(src/vmod_gossip.vcc)
 AC_CONFIG_HEADER([config.h])
 
+AC_GNU_SOURCE
+
 AM_INIT_AUTOMAKE([1.12 -Wall -Werror foreign parallel-tests])
 AM_SILENT_RULES([yes])
 AM_PROG_AR
