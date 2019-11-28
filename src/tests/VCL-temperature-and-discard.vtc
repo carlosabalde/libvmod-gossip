@@ -81,6 +81,8 @@ shell -expect "----\n/bar\n/baz\n----\n" {
 
 varnish v1 -cliok "vcl.use vcl2"
 
+varnish v1 -cliok "vcl.state vcl1 cold"
+
 varnish v1 -cliok "vcl.discard vcl1"
 
 varnish v1 -expect client_req == 5
