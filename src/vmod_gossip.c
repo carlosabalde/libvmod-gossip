@@ -582,30 +582,30 @@ vmod_event_function(VRT_CTX, struct vmod_priv *vcl_priv, enum vcl_event_e e)
 {
     switch (e) {
         case VCL_EVENT_LOAD:
-            AZ(pthread_mutex_lock(&mutex));
             if (inits == 0) {
+                AZ(pthread_mutex_lock(&mutex));
                 AZ(vmod_state);
                 vmod_state = new_vmod_state(ctx2now(ctx));
                 callback_handle = ObjSubscribeEvents(
                     callback, NULL, OEV_INSERT|OEV_EXPIRE);
                 AN(callback_handle);
+                AZ(pthread_mutex_unlock(&mutex));
             }
             inits++;
-            AZ(pthread_mutex_unlock(&mutex));
             break;
 
         case VCL_EVENT_DISCARD:
-            AZ(pthread_mutex_lock(&mutex));
             assert(inits > 0);
             inits--;
             AN(callback_handle);
             if (inits == 0) {
+                AZ(pthread_mutex_lock(&mutex));
                 ObjUnsubscribeEvents(&callback_handle);
                 AZ(callback_handle);
                 free_vmod_state(vmod_state, 1);
                 vmod_state = NULL;
+                AZ(pthread_mutex_unlock(&mutex));
             }
-            AZ(pthread_mutex_unlock(&mutex));
             break;
 
         default:
