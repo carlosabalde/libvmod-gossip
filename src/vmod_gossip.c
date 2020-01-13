@@ -572,8 +572,8 @@ event_function(VRT_CTX, struct vmod_priv *vcl_priv, enum vcl_event_e e)
                 callback_handle = EXP_Register_Callback(
                     callback, NULL);
                 AN(callback_handle);
-                inits++;
             }
+            inits++;
             AZ(pthread_mutex_unlock(&mutex));
             break;
 
