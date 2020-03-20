@@ -1,5 +1,5 @@
 AC_PREREQ([2.68])
-AC_INIT([libvmod-gossip], [trunk], [], [vmod-gossip])
+AC_INIT([libvmod-gossip], [6.0], [], [vmod-gossip])
 AC_COPYRIGHT([Copyright (c) 2018-2020 Carlos Abalde <carlos.abalde@gmail.com>])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR(src/vmod_gossip.vcc)
@@ -35,7 +35,7 @@ PKG_PROG_PKG_CONFIG
 
 m4_ifndef([VARNISH_PREREQ], AC_MSG_ERROR([Need varnish.m4 -- see README.rst]))
 
-#VARNISH_PREREQ([6.0], [6.1])
+#VARNISH_PREREQ([6.4], [6.5])
 VARNISH_VMODS([gossip])
 
 VMOD_TESTS="$(cd $srcdir/src && echo tests/*.vtc)"
