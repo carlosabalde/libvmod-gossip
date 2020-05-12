@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  - push
+  - pull_request
+
+jobs:
+  test:
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        cc:
+          - gcc
+          - clang
+        make_target:
+          - check
+          - distcheck
+        configure_flags:
+          - ''
+        include:
+          - cc: gcc
+            make_target: lcov
+            configure_flags: --enable-code-coverage
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install packages
+        run: |
+          sudo apt-get install -qq \
+            automake autotools-dev lcov libedit-dev libeditline-dev \
+            libncurses-dev libpcre3-dev libtool python-docutils python-sphinx
+
+      - name: Install Varnish Cache
+        run: |
+          wget --no-check-certificate https://varnish-cache.org/_downloads/varnish-6.4.0.tgz
+          tar zxvf varnish-*.tgz
+          pushd varnish-*
+          ./autogen.sh
+          CC='${{ matrix.cc }}' ./configure ${{ matrix.configure_flags }}
+          make -sj32
+          sudo make PREFIX='/usr/local' install
+          sudo ldconfig
+          popd
+
+      - name: Build & test VMOD
+        run: |
+          ./autogen.sh
+          ./configure --prefix=/usr ${{ matrix.configure_flags }}
+          make -j4
+          make ${{ matrix.make_target }} -j1
+
+      - name: Push code coverage
+        if: ${{ matrix.make_target == 'lcov' }}
+        run: |
+          cp libvmod-gossip-*-coverage.info codecov.info
+          bash <(curl -s https://codecov.io/bash) -X gcov -X coveragepy
+
+      - name: Show test report
+        if: ${{ failure() }}
+        run: |
+          cat src/test-suite.log || exit 0
