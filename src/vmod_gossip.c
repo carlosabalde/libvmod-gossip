@@ -98,6 +98,8 @@ new_object(struct objcore *oc, const char *info)
 static void
 free_object(object_t *object)
 {
+    CHECK_OBJ_NOTNULL(object, OBJECT_MAGIC);
+
     object->oc = NULL;
 
     if (object->info != NULL) {
@@ -168,6 +170,8 @@ free_vmod_state_thread(void *obj)
 static void
 free_vmod_state(vmod_state_t *state, unsigned async)
 {
+    CHECK_OBJ_NOTNULL(state, VMOD_STATE_MAGIC);
+
     if (async) {
         pthread_t thread;
         AZ(pthread_create(&thread, NULL, &free_vmod_state_thread, state));
