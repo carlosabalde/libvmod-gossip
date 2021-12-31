@@ -1,6 +1,6 @@
 AC_PREREQ([2.68])
 AC_INIT([libvmod-gossip], [trunk], [], [vmod-gossip])
-AC_COPYRIGHT([Copyright (c) 2018-2021 Carlos Abalde <carlos.abalde@gmail.com>])
+AC_COPYRIGHT([Copyright (c) 2018-2022 Carlos Abalde <carlos.abalde@gmail.com>])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR(src/vmod_gossip.vcc)
 AC_CONFIG_HEADER([config.h])
