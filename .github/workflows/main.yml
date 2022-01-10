@@ -40,4 +40,5 @@ jobs:
         run: |
           ./autogen.sh
           CC='${{ matrix.cc }}' ./configure --prefix=/usr ${{ matrix.configure_flags }}
+          make -j4
           make check -j1
