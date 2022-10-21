@@ -6,7 +6,7 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
 
     strategy:
       matrix:
@@ -30,8 +30,8 @@ jobs:
         run: |
           sudo apt-get update -q
           sudo apt-get install -qq \
-            automake autotools-dev lcov libedit-dev \
-            libncurses-dev libpcre3-dev libtool python3-docutils python3-sphinx
+            automake autotools-dev lcov libedit-dev libeditline-dev \
+            libncurses-dev libpcre3-dev libtool python-docutils python3-sphinx
 
       - name: Install Varnish Cache
         run: |
