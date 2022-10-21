@@ -32,7 +32,7 @@
         if (ctx != NULL && (ctx)->vsl != NULL) { \
             VSLb((ctx)->vsl, slt, "[GOSSIP][%s:%d] " fmt, __func__, __LINE__, __VA_ARGS__); \
         } else { \
-            VSL(slt, 0, "[GOSSIP][%s:%d] " fmt, __func__, __LINE__, __VA_ARGS__); \
+            VSL(slt, NO_VXID, "[GOSSIP][%s:%d] " fmt, __func__, __LINE__, __VA_ARGS__); \
         } \
     } while (0)
 
