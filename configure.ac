@@ -37,7 +37,7 @@ PKG_PROG_PKG_CONFIG
 
 m4_ifndef([VARNISH_PREREQ], AC_MSG_ERROR([Need varnish.m4 -- see README.rst]))
 
-VARNISH_PREREQ([7.2], [7.3])
+VARNISH_PREREQ([7.3], [7.4])
 VARNISH_VMODS([gossip])
 
 VMOD_TESTS="$(cd $srcdir/src && echo tests/*.vtc)"
