@@ -6,13 +6,15 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
 
     strategy:
       matrix:
         cc:
           - gcc
-          - clang
+          # Skip clang in this legacy branch due to issues compiling VC 4.1
+          # using clang.
+          # - clang
 
     steps:
       - uses: actions/checkout@v2
@@ -22,7 +24,7 @@ jobs:
           sudo apt-get update -q
           sudo apt-get install -qq \
             automake autotools-dev lcov libedit-dev libeditline-dev \
-            libncurses-dev libpcre3-dev libtool python-docutils python-sphinx
+            libncurses-dev libpcre3-dev libtool python-docutils python3-sphinx
 
       - name: Install Varnish Cache
         run: |
