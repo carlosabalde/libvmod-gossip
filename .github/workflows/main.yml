@@ -32,7 +32,7 @@ jobs:
           pushd varnish-*/
           ./autogen.sh
           CC='${{ matrix.cc }}' \
-            $(if [ '${{ matrix.cc }}' == 'clang' ]; then echo 'CFLAGS="-Wno-implicit-int-float-conversion"'; fi) \
+            CFLAGS=$(if [ '${{ matrix.cc }}' == 'clang' ]; then echo '-Wno-implicit-int-float-conversion'; fi) \
             ./configure
           make -sj32
           sudo make PREFIX='/usr/local' install
