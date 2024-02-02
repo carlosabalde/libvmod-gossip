@@ -118,7 +118,7 @@ client c1 {
     delay 0.1
 } -run
 
-delay 1.0
+delay 3.0
 
 shell {
     cat <<'EOF' > ${tmpdir}/parse.sh
