@@ -6,7 +6,7 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     strategy:
       matrix:
@@ -56,7 +56,7 @@ jobs:
         if: ${{ matrix.make_target == 'lcov' }}
         run: |
           cp libvmod-gossip-*-coverage.info codecov.info
-          bash <(curl -s https://codecov.io/bash) -X gcov -X coveragepy
+          bash <(curl -s https://codecov.io/bash) -X gcov -X coveragepy -t b49d6e42-8c73-4665-a3d3-3ac7aa85fb81
 
       - name: Show test report
         if: ${{ failure() }}
