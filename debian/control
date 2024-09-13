@@ -1,0 +1,16 @@
+Source: libvmod-gossip
+Section: web
+Priority: extra
+Maintainer: Carlos Abalde <carlos.abalde@gmail.com>
+Build-Depends: debhelper (>= 7),
+ build-essential,
+ pkg-config,
+ python-docutils | python3-docutils,
+ varnish (>= 7.6.0),
+ libvarnishapi-dev (>= 7.6.0)
+Standards-Version: 3.8.1
+
+Package: libvmod-gossip
+Architecture: any
+Depends: varnish (>= 7.6.0), ${shlibs:Depends}, ${misc:Depends}, ${Varnish:ABI}
+Description: Gossip VMOD for Varnish
