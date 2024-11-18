@@ -31,7 +31,7 @@ jobs:
           sudo apt update
           sudo DEBIAN_FRONTEND=noninteractive NEEDRESTART_SUSPEND=non-empty-value apt install -y \
             automake autotools-dev lcov libedit-dev \
-            libncurses-dev libpcre3-dev libtool python-docutils python3-sphinx
+            libncurses-dev libpcre3-dev libtool python3-docutils python3-sphinx
 
       - name: Install Varnish Cache
         run: |
