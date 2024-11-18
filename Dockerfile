@@ -1,4 +1,4 @@
-FROM ubuntu:focal-20211006
+FROM ubuntu:noble-20240423
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -20,14 +20,13 @@ RUN apt update \
         jq \
         less \
         libedit-dev \
-        libeditline-dev \
         libjemalloc-dev \
         libncurses-dev \
         libpcre3-dev \
         libtool \
         make \
         nano \
-        netcat \
+        netcat-traditional \
         pkg-config \
         python3 \
         python3-docutils \
@@ -41,7 +40,7 @@ RUN apt update \
     && rm -rf /var/lib/apt/lists/*
 
 RUN cd /tmp \
-    && wget --no-check-certificate https://varnish-cache.org/_downloads/varnish-6.0.9.tgz \
+    && wget --no-check-certificate https://varnish-cache.org/_downloads/varnish-6.0.13.tgz \
     && tar zxvf varnish-*.tgz \
     && rm -f varnish-*.tgz \
     && cd varnish-* \
