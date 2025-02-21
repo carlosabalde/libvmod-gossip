@@ -26,4 +26,7 @@ TESTS = @VMOD_TESTS@
 
 EXTRA_DIST = \
 	vmod_gossip.vcc \
+	vmod_vcs_version.txt \
 	$(VMOD_TESTS)
+
+DISTCLEANFILES = vmod_vcs_version.txt
