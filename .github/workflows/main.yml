@@ -56,7 +56,7 @@ jobs:
         if: ${{ matrix.make_target == 'lcov' }}
         run: |
           cp libvmod-gossip-*-coverage.info codecov.info
-          bash <(curl -s https://codecov.io/bash) -X gcov -X coveragepy -t ${{ secrets.CODECOV_TOKEN }}
+          bash <(curl -s https://codecov.io/bash) -X gcov -X coveragepy -t ${{ secrets.CODECOV_TOKEN }} -B "${GITHUB_REF_NAME}"
 
       - name: Show test report
         if: ${{ failure() }}
