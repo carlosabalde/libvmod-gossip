@@ -1,0 +1,95 @@
+libvmod-gossip (17.0-1) stable; urgency=low
+
+  * Migrated to Varnish Cache 8.0.x
+
+ -- Carlos Abalde <carlos.abalde@gmail.com>  Mon, 15 Sep 2025 16:00:00 +0200
+
+libvmod-gossip (16.0-1) stable; urgency=low
+
+  * Migrated to Varnish Cache 7.7.x
+
+ -- Carlos Abalde <carlos.abalde@gmail.com>  Tue, 18 Mar 2025 16:00:00 +0100
+
+libvmod-gossip (15.0-1) stable; urgency=low
+
+  * Migrated to Varnish Cache 7.6.x
+
+ -- Carlos Abalde <carlos.abalde@gmail.com>  Fri, 13 Sep 2024 16:00:00 +0200
+
+libvmod-gossip (14.0-1) stable; urgency=low
+
+  * Migrated to Varnish Cache 7.5.x
+
+ -- Carlos Abalde <carlos.abalde@gmail.com>  Tue, 19 Mar 2024 16:00:00 +0100
+
+libvmod-gossip (13.0-1) stable; urgency=low
+
+  * Migrated to Varnish Cache 7.4.x
+
+ -- Carlos Abalde <carlos.abalde@gmail.com>  Fri, 15 Sep 2023 16:00:00 +0200
+
+libvmod-gossip (12.0-1) stable; urgency=low
+
+  * Migrated to Varnish Cache 7.3.x
+
+ -- Carlos Abalde <carlos.abalde@gmail.com>  Wed, 15 Mar 2023 16:00:00 +0100
+
+libvmod-gossip (11.0-1) stable; urgency=low
+
+  * Migrated to Varnish Cache 7.2.x
+
+ -- Carlos Abalde <carlos.abalde@gmail.com>  Thu, 15 Sep 2022 16:00:00 +0200
+
+libvmod-gossip (10.0-1) stable; urgency=low
+
+  * Migrated to Varnish Cache 7.1.x
+
+ -- Carlos Abalde <carlos.abalde@gmail.com>  Tue, 15 Mar 2022 16:00:00 +0100
+
+libvmod-gossip (9.0-1) stable; urgency=low
+
+  * Migrated to Varnish Cache 7.0.x
+
+ -- Carlos Abalde <carlos.abalde@gmail.com>  Wed, 15 Sep 2021 16:00:00 +0200
+
+libvmod-gossip (8.0-1) stable; urgency=low
+
+  * Migrated to Varnish Cache 6.6.x
+
+ -- Carlos Abalde <carlos.abalde@gmail.com>  Mon, 15 Mar 2021 16:00:00 +0100
+
+libvmod-gossip (7.0-1) stable; urgency=low
+
+  * Migrated to Varnish Cache 6.5.x
+
+ -- Carlos Abalde <carlos.abalde@gmail.com>  Tue, 15 Sep 2020 16:00:00 +0200
+
+libvmod-gossip (6.0-1) stable; urgency=low
+
+  * Migrated to Varnish Cache 6.4.x
+
+ -- Carlos Abalde <carlos.abalde@gmail.com>  Fri, 20 Mar 2020 16:00:00 +0100
+
+libvmod-gossip (5.0-1) stable; urgency=low
+
+  * Migrated to Varnish Cache 6.3.x
+
+ -- Carlos Abalde <carlos.abalde@gmail.com>  Mon, 30 Sep 2019 16:00:00 +0200
+
+libvmod-gossip (4.0-1) stable; urgency=low
+
+  * Migrated to Varnish Cache 6.2.x
+
+ -- Carlos Abalde <carlos.abalde@gmail.com>  Mon, 18 Mar 2019 16:00:00 +0100
+
+libvmod-gossip (3.0-1) stable; urgency=low
+
+  * Migrated to Varnish Cache 6.1.x
+
+ -- Carlos Abalde <carlos.abalde@gmail.com>  Tue, 18 Sep 2018 16:00:00 +0200
+
+libvmod-gossip (2.0-1) stable; urgency=low
+
+  * Initial version
+
+ -- Carlos Abalde <carlos.abalde@gmail.com>  Sat, 12 May 2018 23:00:00 +0200
