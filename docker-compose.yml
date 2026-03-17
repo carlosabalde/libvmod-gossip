@@ -14,7 +14,7 @@
 
 version: '3.7'
 
-name: libvmod-gossip-main
+name: libvmod-gossip-9_0
 
 services:
   dev:
