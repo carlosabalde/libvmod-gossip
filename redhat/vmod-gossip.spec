@@ -7,8 +7,8 @@ URL: https://github.com/carlosabalde/libvmod-gossip
 Group: System Environment/Daemons
 Source0: libvmod-gossip.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-Requires: varnish >= 8.8.0
-BuildRequires: make, python-docutils, varnish >= 8.8.0, varnish-devel >= 8.8.0
+Requires: varnish >= 8.0.0
+BuildRequires: make, python-docutils, varnish >= 8.0.0, varnish-devel >= 8.0.0
 
 %description
 Gossip VMOD for Varnish
