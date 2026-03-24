@@ -417,7 +417,7 @@ escape_json_string(const char *value, char *out, unsigned max_out_size)
         DUMP_CHAR(json_hex_chars[V & 0xf]);
 
     for (int i = 0; value[i]; i++) {
-        if (value[i] > 31 && value[i] != '\"' && value[i] != '\\') {
+        if ((unsigned char)value[i] > 31 && value[i] != '\"' && value[i] != '\\') {
             DUMP_CHAR(value[i]);
         } else {
             DUMP_CHAR('\\');
