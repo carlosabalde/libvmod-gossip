@@ -7,6 +7,7 @@
 #include <syslog.h>
 #include <ctype.h>
 #include <errno.h>
+#include <inttypes.h>
 
 #ifdef HAVE_CACHE_CACHE_VARNISHD_H
 #  include <cache/cache_varnishd.h>
@@ -301,7 +302,7 @@ dump(
             }
             if (safe_ocs) {
                 AZ(VSB_cat(vsb, ","));
-                AZ(VSB_printf(vsb, "\"hits\":%ld,", object->oc->hits));
+                AZ(VSB_printf(vsb, "\"hits\":%" PRId64 ",", object->oc->hits));
                 AZ(VSB_printf(vsb, "\"ttl\":%.6f,",
                     (object->oc->t_origin + object->oc->ttl) - now));
                 AZ(VSB_printf(vsb, "\"grace\":%.6f,", object->oc->grace));
