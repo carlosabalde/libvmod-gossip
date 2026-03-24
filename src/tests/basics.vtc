@@ -89,6 +89,13 @@ client c1 {
     rxresp
     expect resp.status == 200
 
+    # The '/foo' object has expired (TTL 0.5s < delay 1.0s) so the request above
+    # is a grace hit that triggers a background fetch. Wait for the background
+    # fetch to finish before issuing the next request, otherwise the '/baz'
+    # backend fetch may race with the '/foo' background fetch for the server
+    # connection.
+    delay 0.5
+
     txreq -url /baz \
           -hdr "X-Device: mobile"
     rxresp
