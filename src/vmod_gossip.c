@@ -209,7 +209,7 @@ insert_callback(struct worker *wrk, struct objcore *oc)
             info = strchr(info, ':');
             AN(info);
             info++;
-            for (; isspace(*info); info++);
+            for (; isspace((unsigned char)*info); info++);
             break;
         }
     }
