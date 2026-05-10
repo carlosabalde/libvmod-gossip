@@ -23,6 +23,7 @@ RUN apt update \
         libjemalloc-dev \
         libncurses-dev \
         libpcre2-dev \
+        libssl-dev \
         libtool \
         make \
         nano \
