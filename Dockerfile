@@ -1,4 +1,4 @@
-FROM ubuntu:resolute-20260421
+FROM ubuntu:noble-20260410
 
 ARG VARNISH_CC=gcc
 
